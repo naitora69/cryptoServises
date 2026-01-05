@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8083
 
 database:
   host: localhost
@@ -9,7 +9,7 @@ database:
 
 proposal:
   number_records: 50
-  time_request: 1
+  time_request: 5
 
 kafka:
   port: 9092

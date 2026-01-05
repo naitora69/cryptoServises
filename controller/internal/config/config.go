@@ -13,7 +13,7 @@ import (
 type Config struct {
 	Server   ServerConfig   `yaml:"server"`
 	Database DatabaseConfig `yaml:"database"`
-	Proposal ProposalConfig `yaml:"proposal"`
+	Proposal Proposal       `yaml:"proposal"`
 	Kafka    KafkaConfig    `yaml:"kafka"`
 }
 
@@ -27,7 +27,7 @@ type DatabaseConfig struct {
 	SSLMode string `yaml:"sslmode"`
 }
 
-type ProposalConfig struct {
+type Proposal struct {
 	NumberRecords int `yaml:"number_records"` // Количество записей в ответе
 	TimeRequest   int `yaml:"time_request"`   // Время между запросами
 }

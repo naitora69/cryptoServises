@@ -1,9 +1,11 @@
 package main
 
 import (
+	"controller/internal/config"
+	"controller/internal/controller"
+	"controller/internal/repository"
+	"controller/internal/service"
 	"fmt"
-	"governance-indexer/internal/repository"
-	"governance-indexer/internal/timer"
 	"log"
 	"net/http"
 	"os"
@@ -11,9 +13,6 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/segmentio/kafka-go"
-
-	"governance-indexer/internal/config"
-	"governance-indexer/internal/indexer"
 )
 
 func main() {
@@ -38,23 +37,22 @@ func main() {
 	println(cfg.Server.Port)
 	println(cfg.Kafka.Port)
 
-	kafkaWriter := &kafka.Writer{
-		Addr:     kafka.TCP(fmt.Sprintf("localhost:%s", cfg.Server.Port)),
-		Topic:    "dao-indexer",
-		Balancer: &kafka.LeastBytes{},
-	}
-	defer func(kafkaWriter *kafka.Writer) {
-		err := kafkaWriter.Close()
+	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: []string{fmt.Sprintf("localhost:%s", cfg.Server.Port)},
+		Topic:   "dao-indexer",
+	})
+	defer func(kafkaReader *kafka.Reader) {
+		err := kafkaReader.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
-	}(kafkaWriter)
+	}(kafkaReader)
 
 	// Подключения модулей
 	repo := repository.NewRepository(db)
-	index := indexer.NewIndexer(repo, kafkaWriter)
-	tm := timer.NewTimer(index, cfg)
-	go tm.StartProposal()
+	services := service.NewService(repo)
+	h := controller.NewController(services, kafkaReader)
+	go h.InitListener()
 
 	// Создаем http сервер
 	log.Println(fmt.Sprintf("Server started on: %s", cfg.Server.Port))

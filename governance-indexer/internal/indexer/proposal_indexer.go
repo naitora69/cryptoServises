@@ -2,6 +2,7 @@ package indexer
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"governance-indexer/internal/models"
@@ -9,14 +10,17 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/segmentio/kafka-go"
 )
 
 type ProposalIndexer struct {
-	repo *repository.Repository
+	repo   *repository.Repository
+	writer *kafka.Writer
 }
 
-func NewProposalIndexer(repo *repository.Repository) *ProposalIndexer {
-	return &ProposalIndexer{repo: repo}
+func NewProposalIndexer(repo *repository.Repository, writer *kafka.Writer) *ProposalIndexer {
+	return &ProposalIndexer{repo: repo, writer: writer}
 }
 
 var endpoint = "https://hub.snapshot.org/graphql"
@@ -95,10 +99,33 @@ func (p *ProposalIndexer) IndexProposal(numberRecords int) error {
 		fmt.Println("Error finding missing proposals:", err)
 		return err
 	}
-	//for _, proposal := range missing {
-	//	fmt.Println(proposal)
-	//}
-	// TODO: здесь должен быть outbox-паттерн
+
+	fmt.Println("Start Json")
+	// TODO: здесь должен быть outbox-паттер. Пока использую только kafka
+
+	data, err := json.Marshal(missing[0])
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Marshal error: %v", err))
+	}
+	println(string(data))
+
+	fmt.Println("Start Kafka")
+	err = p.writer.WriteMessages(
+		context.Background(),
+		kafka.Message{
+			Value: data,
+			Headers: []kafka.Header{
+				{Key: "content-type", Value: []byte("application/json")},
+				{Key: "event-type", Value: []byte("Proposals")},
+			},
+		})
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Write messages error: %v", err))
+	}
+
+	for _, proposal := range missing {
+		fmt.Println(proposal)
+	}
 
 	// если есть записи, то сохраняем в БД
 	if len(missing) > 0 {

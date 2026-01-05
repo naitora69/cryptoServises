@@ -11,8 +11,8 @@ import (
 
 // Config — корневая конфигурация приложения
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
+	Server   ServerConfig   `yaml:"server"`
+	Database DatabaseConfig `yaml:"database"`
 }
 
 type ServerConfig struct {
