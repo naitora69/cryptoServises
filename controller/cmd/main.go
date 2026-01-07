@@ -33,13 +33,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	println(cfg.Server.Port)
-	println(cfg.Kafka.Port)
+	log.Println(fmt.Sprintf("Kafka server: localhost:%s", cfg.Kafka.Port))
 
 	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{fmt.Sprintf("localhost:%s", cfg.Server.Port)},
+		Brokers: []string{fmt.Sprintf("localhost:%s", cfg.Kafka.Port)},
 		Topic:   "dao-indexer",
+		GroupID: "dao-indexer",
+		// читать с конца, если группа новая
+		StartOffset: kafka.LastOffset,
 	})
 	defer func(kafkaReader *kafka.Reader) {
 		err := kafkaReader.Close()
@@ -50,8 +51,8 @@ func main() {
 
 	// Подключения модулей
 	repo := repository.NewRepository(db)
-	services := service.NewService(repo)
-	h := controller.NewController(services, kafkaReader)
+	services := service.NewService(repo, cfg)
+	h := controller.NewController(services)
 	go h.InitListener()
 
 	// Создаем http сервер

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"log"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -35,10 +36,18 @@ func RunMigrations(dsn string) error {
 		dsn,
 	)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
+	// TODO: Нужно удалить. Используется для отладки
+	//if err := m.Down(); err != nil && err != migrate.ErrNoChange {
+	//	log.Println(err)
+	//	return err
+	//}
+
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Println(err)
 		return err
 	}
 	return nil

@@ -12,3 +12,11 @@ CREATE TABLE proposal (
     space_id varchar(256),
     space_name varchar(256)
 );
+
+CREATE TABLE event_outbox (
+    id serial primary key,
+    hex_id varchar(256) references proposal(hex_id) on delete cascade,
+    event_type text,
+    created_at timestamp,
+    processed_at timestamp NULL
+);

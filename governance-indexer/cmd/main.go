@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"governance-indexer/internal/indexer"
 	"governance-indexer/internal/repository"
 	"governance-indexer/internal/timer"
 	"log"
@@ -13,7 +14,6 @@ import (
 	"github.com/segmentio/kafka-go"
 
 	"governance-indexer/internal/config"
-	"governance-indexer/internal/indexer"
 )
 
 func main() {
@@ -35,11 +35,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	println(cfg.Server.Port)
-	println(cfg.Kafka.Port)
-
 	kafkaWriter := &kafka.Writer{
-		Addr:     kafka.TCP(fmt.Sprintf("localhost:%s", cfg.Server.Port)),
+		Addr:     kafka.TCP(fmt.Sprintf("localhost:%s", cfg.Kafka.Port)),
 		Topic:    "dao-indexer",
 		Balancer: &kafka.LeastBytes{},
 	}
@@ -52,7 +49,7 @@ func main() {
 
 	// Подключения модулей
 	repo := repository.NewRepository(db)
-	index := indexer.NewIndexer(repo, kafkaWriter)
+	index := indexer.NewIndexer(repo, cfg)
 	tm := timer.NewTimer(index, cfg)
 	go tm.StartProposal()
 

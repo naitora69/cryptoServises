@@ -3,6 +3,7 @@ package timer
 import (
 	"governance-indexer/internal/config"
 	"governance-indexer/internal/indexer"
+	"log"
 	"time"
 )
 
@@ -19,10 +20,11 @@ func (p ProposalTimer) StartProposal() {
 	for {
 		err := p.index.IndexProposal(p.config.Proposal.NumberRecords)
 		if err != nil {
+			log.Println("Error indexing proposal records", err)
 			return
 		}
 
-		var durationMinutes = time.Duration(p.config.Proposal.TimeRequest * 60)
+		var durationMinutes = time.Duration(p.config.Proposal.TimeRequest)
 
 		time.Sleep(durationMinutes * time.Second)
 	}

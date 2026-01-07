@@ -12,4 +12,5 @@ proposal:
   time_request: 5
 
 kafka:
+  address: localhost
   port: 9092

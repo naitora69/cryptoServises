@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"governance-indexer/internal/models"
+	"governance-indexer/pkg/models"
 )
 
 type ProposalRepo interface {

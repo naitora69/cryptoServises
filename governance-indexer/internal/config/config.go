@@ -33,7 +33,8 @@ type ProposalConfig struct {
 }
 
 type KafkaConfig struct {
-	Port string `yaml:"port"`
+	Address string `yaml:"address"`
+	Port    string `yaml:"port"`
 }
 
 // LoadConfig загружает конфигурацию из YAML файла

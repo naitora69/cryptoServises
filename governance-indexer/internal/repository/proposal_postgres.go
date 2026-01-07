@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"governance-indexer/internal/models"
+	"governance-indexer/pkg/models"
 	"strings"
 	"time"
 
@@ -66,20 +66,6 @@ func (p ProposalPostgres) AddProposal(proposals []models.Proposals) error {
 	if err != nil {
 		return err
 	}
-
-	//for _, p := range proposals {
-	//	createdTime := time.Unix(p.Created, 0).Format("2006-01-02 15:04:05 UTC")
-	//
-	//	fmt.Printf(
-	//		"- [%s] %s\n  Space: %s (%s)\n  Author: %s\n  State: %s\n\n",
-	//		createdTime,
-	//		p.Title,
-	//		p.Space.Name,
-	//		p.Space.ID,
-	//		p.Author,
-	//		p.State,
-	//	)
-	//}
 	return nil
 }
 

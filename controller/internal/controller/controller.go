@@ -1,39 +1,30 @@
 package controller
 
 import (
-	"context"
-	"controller/internal/models"
 	"controller/internal/service"
+	"controller/pkg/models"
 	"encoding/json"
 	"log"
-	"net/http"
-
-	"github.com/segmentio/kafka-go"
 )
 
-type Proposal interface {
-	Create(w http.ResponseWriter, r *http.Request)
-}
-
 type Controller struct {
-	proposal Proposal
-	reader   *kafka.Reader
+	service *service.Service
 }
 
-func NewController(service *service.Service, reader *kafka.Reader) *Controller {
+func NewController(service *service.Service) *Controller {
 	return &Controller{
-		proposal: NewProposalController(service),
-		reader:   reader,
+		service: service,
 	}
 }
 
 func (c *Controller) InitListener() {
 	i := 1
 	for {
-		m, err := c.reader.ReadMessage(context.Background())
+		m, err := c.service.ReaderWriterKafka.ReadMessage()
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
+		log.Println(m)
 
 		var proposals_in []models.Proposals
 		if err := json.Unmarshal(m.Value, &proposals_in); err != nil {

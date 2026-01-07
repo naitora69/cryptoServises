@@ -2,11 +2,11 @@ package indexer
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
-	"governance-indexer/internal/models"
 	"governance-indexer/internal/repository"
+	"governance-indexer/pkg/models"
+	"governance-indexer/pkg/service"
 	"io"
 	"log"
 	"net/http"
@@ -15,12 +15,12 @@ import (
 )
 
 type ProposalIndexer struct {
-	repo   *repository.Repository
-	writer *kafka.Writer
+	repo    *repository.Repository
+	rwKafka *service.ReaderWriterService
 }
 
-func NewProposalIndexer(repo *repository.Repository, writer *kafka.Writer) *ProposalIndexer {
-	return &ProposalIndexer{repo: repo, writer: writer}
+func NewProposalIndexer(repo *repository.Repository, rwKafka *service.ReaderWriterService) *ProposalIndexer {
+	return &ProposalIndexer{repo: repo, rwKafka: rwKafka}
 }
 
 var endpoint = "https://hub.snapshot.org/graphql"
@@ -72,6 +72,7 @@ func (p *ProposalIndexer) IndexProposal(numberRecords int) error {
 		log.Println("JSON marshal error:", err)
 		return err
 	}
+
 	// Отправляем запрос и получаем ответ
 	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -96,40 +97,34 @@ func (p *ProposalIndexer) IndexProposal(numberRecords int) error {
 	// смотрим каких записей нет
 	missing, err := p.repo.FindMissing(result.Data.Proposals)
 	if err != nil {
-		fmt.Println("Error finding missing proposals:", err)
+		log.Println("Error finding missing proposals:", err)
 		return err
 	}
 
-	fmt.Println("Start Json")
-	// TODO: здесь должен быть outbox-паттер. Пока использую только kafka
+	if len(missing) == 0 {
+		log.Println("No missing proposals found")
+		return nil
+	}
+	// TODO: здесь должен быть outbox-паттерн. Пока использую только kafka
 
-	data, err := json.Marshal(missing[0])
+	fmt.Println(missing)
+	data, err := json.Marshal(missing)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Marshal error: %v", err))
 	}
-	println(string(data))
-
-	fmt.Println("Start Kafka")
-	err = p.writer.WriteMessages(
-		context.Background(),
+	err = p.rwKafka.WriteMessage(
 		kafka.Message{
 			Value: data,
-			Headers: []kafka.Header{
-				{Key: "content-type", Value: []byte("application/json")},
-				{Key: "event-type", Value: []byte("Proposals")},
-			},
 		})
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Write messages error: %v", err))
 	}
 
-	for _, proposal := range missing {
-		fmt.Println(proposal)
-	}
+	log.Println("Proposals writes:", len(missing))
 
 	// если есть записи, то сохраняем в БД
 	if len(missing) > 0 {
-		if err := p.repo.AddProposal(result.Data.Proposals); err != nil {
+		if err := p.repo.AddProposal(missing); err != nil {
 			log.Println("Repository error:", err)
 			return err
 		}
