@@ -1,4 +1,4 @@
-package scamanalyzator
+package ageanalyze
 
 import (
 	"time"

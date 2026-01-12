@@ -1,4 +1,4 @@
-package scamanalyzator
+package ageanalyze
 
 import (
 	"encoding/json"
@@ -38,7 +38,7 @@ func GetTokenAge(apiKey string, address string, chainID string) (int64, error) {
 		log.Println("Decode error: ", err)
 		return 0, err
 	}
-	// статус не еденица в ответе - ошибка
+	// статус не единица в ответе - ошибка
 	if res.Status != "1" {
 		log.Println("Status err", fmt.Errorf("etherscan v2 error: %s (result: %s)", res.Message, string(res.Result)))
 		return 0, fmt.Errorf("etherscan v2 error: %s (result: %s)", res.Message, string(res.Result))

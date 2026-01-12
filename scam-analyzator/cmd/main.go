@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"scam-analyzator-service/internal/scamanalyzator"
+	ageanalyze "scam-analyzator-service/internal/scamanalyzator/age-analyze"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Println("Не найден токены для данного пр-ва")
 	}
-	res := scamanalyzator.FinalRes(tokenIds)
+	res := ageanalyze.FinalRes(tokenIds)
 
 	resStr := fmt.Sprintf("Найден ли скам в пр-ве %s = %v\n", spaceID, res)
 

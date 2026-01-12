@@ -7,21 +7,24 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"scam-analyzator-service/internal/config"
 )
 
 var queryToken = `
 { 
   space(id: "%s") {
-	network 
-	strategies {
-	  params 
-	} 
+    symbol
+    network
+    strategies {
+      params 
+    } 
   }
 }`
 
 type SnapshotResponce struct {
 	Data struct {
 		Space struct {
+			Symbol     string `json:"symbol"`
 			Network    string `json:"network"`
 			Strategies []struct {
 				Params map[string]any `json:"params"`
@@ -29,14 +32,18 @@ type SnapshotResponce struct {
 		} `json:"space"`
 	} `json:"data"`
 }
+type MoralisResponce struct {
+	Address string `json:"address"`
+}
 type TokenIdAnswer struct {
-	network       string
-	tokensAddress []string
+	Network       string
+	TokensAddress []string
 }
 
 func GetTokenId(spaceID string) (TokenIdAnswer, error) {
 	var result TokenIdAnswer
-	var res SnapshotResponce
+	var resSnapshot SnapshotResponce
+	var resMoralis []MoralisResponce
 
 	// адрес для запроса
 	apiURL := "https://hub.snapshot.org/graphql"
@@ -66,23 +73,52 @@ func GetTokenId(spaceID string) (TokenIdAnswer, error) {
 		return TokenIdAnswer{}, err
 	}
 	// парсим ответ в структуру
-	if err := json.Unmarshal(body, &res); err != nil {
+	if err := json.Unmarshal(body, &resSnapshot); err != nil {
 		log.Println("Unmarshal error:", err)
 		return TokenIdAnswer{}, err
 	}
 
+	_, apiKey := config.GetApiKey()
 	// кладем номер сети в структуру
-	result.network = res.Data.Space.Network
+	result.Network = resSnapshot.Data.Space.Network
+	symbol := resSnapshot.Data.Space.Symbol
+	chain := GetChainName(result.Network)
+	url := fmt.Sprintf("https://deep-index.moralis.io/api/v2.2/erc20/metadata/symbols?chain=%s&symbols=%s", chain, symbol)
 
-	// кладем итоговые адреса токенов
-	for _, s := range res.Data.Space.Strategies {
-		// в params могут быть разные ключи: address, symbol, token и тд
-		// проверяем address
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("X-API-Key", apiKey)
 
-		if addr, ok := s.Params["address"].(string); ok {
-			result.tokensAddress = append(result.tokensAddress, addr)
-		}
+	resp, _ = http.DefaultClient.Do(req)
+	bodys, _ := io.ReadAll(resp.Body)
+
+	if err := json.Unmarshal(bodys, &resMoralis); err != nil {
+		log.Println("Moralis unmarshall error: ", err)
 	}
+	bufferToStruct := make([]string, 0, len(resMoralis))
 
+	for _, v := range resMoralis {
+		bufferToStruct = append(bufferToStruct, v.Address)
+	}
+	result.TokensAddress = bufferToStruct
 	return result, nil
+}
+func GetChainName(networkID string) string {
+	switch networkID {
+	case "1":
+		return "eth"
+	case "137":
+		return "polygon"
+	case "56":
+		return "bsc"
+	case "42161":
+		return "arbitrum"
+	case "10":
+		return "optimism"
+	case "250":
+		return "fantom"
+	case "43114":
+		return "avalanche"
+	default:
+		return "eth"
+	}
 }

@@ -1,18 +1,19 @@
-package scamanalyzator
+package ageanalyze
 
 import (
 	"log"
 	"scam-analyzator-service/internal/config"
+	"scam-analyzator-service/internal/scamanalyzator"
 	"time"
 )
 
-func FinalRes(tokenStruct TokenIdAnswer) bool {
+func FinalRes(tokenStruct scamanalyzator.TokenIdAnswer) bool {
 	isScamFound := false
-	ethKey := config.GetApiKey()
+	ethKey, _ := config.GetApiKey()
 
-	for _, addr := range tokenStruct.tokensAddress {
+	for _, addr := range tokenStruct.TokensAddress {
 
-		res, err := GetTokenAge(ethKey, addr, tokenStruct.network)
+		res, err := GetTokenAge(ethKey, addr, tokenStruct.Network)
 		if err != nil {
 			log.Println("EtherScan error for: ", addr, err)
 			continue

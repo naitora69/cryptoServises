@@ -7,12 +7,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func GetApiKey() string {
+func GetApiKey() (string, string) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Ошибка загрузки .env файла")
 	}
 
-	apiKey := os.Getenv("ETHER_KEY")
-	return apiKey
+	apiEhtKey := os.Getenv("ETHER_KEY")
+	apiMorKey := os.Getenv("MORALILS_KEY")
+	return apiEhtKey, apiMorKey
 }
