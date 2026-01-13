@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"regexp"
 	"scam-analyzator-service/internal/config"
 )
 
@@ -17,6 +18,7 @@ var queryToken = `
     network
     strategies {
       params 
+	  network
     } 
   }
 }`
@@ -27,7 +29,8 @@ type SnapshotResponce struct {
 			Symbol     string `json:"symbol"`
 			Network    string `json:"network"`
 			Strategies []struct {
-				Params map[string]any `json:"params"`
+				Params  map[string]any `json:"params"`
+				Network string         `json:"network"`
 			} `json:"strategies"`
 		} `json:"space"`
 	} `json:"data"`
@@ -35,16 +38,22 @@ type SnapshotResponce struct {
 type MoralisResponce struct {
 	Address string `json:"address"`
 }
+type TokensInfo struct {
+	Address string
+	Network string
+	Chain   string
+}
 type TokenIdAnswer struct {
-	Network       string
-	TokensAddress []string
+	Symbol string
+	Tokens []TokensInfo
 }
 
-func GetTokenId(spaceID string) (TokenIdAnswer, error) {
-	var result TokenIdAnswer
+func GetTokenId(spaceID string) (TokenIdAnswer, []error) {
+	var allErrors []error
 	var resSnapshot SnapshotResponce
-	var resMoralis []MoralisResponce
 
+	// получаем конфиг для наших api
+	_, apiKey := config.GetApiKey()
 	// адрес для запроса
 	apiURL := "https://hub.snapshot.org/graphql"
 
@@ -56,13 +65,15 @@ func GetTokenId(spaceID string) (TokenIdAnswer, error) {
 	jsonData, err := json.Marshal(query)
 	if err != nil {
 		log.Println("JSON marshall error: ", err)
-		return TokenIdAnswer{}, err
+		allErrors = append(allErrors, err)
+		return TokenIdAnswer{}, allErrors
 	}
 	// запрос на snapshot
 	resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Println("Http error: ", err)
-		return TokenIdAnswer{}, err
+		allErrors = append(allErrors, err)
+		return TokenIdAnswer{}, allErrors
 	}
 	// особождение ресурсов
 	defer resp.Body.Close()
@@ -70,36 +81,79 @@ func GetTokenId(spaceID string) (TokenIdAnswer, error) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Read body error: ", err)
-		return TokenIdAnswer{}, err
+		allErrors = append(allErrors, err)
+		return TokenIdAnswer{}, allErrors
 	}
 	// парсим ответ в структуру
 	if err := json.Unmarshal(body, &resSnapshot); err != nil {
 		log.Println("Unmarshal error:", err)
-		return TokenIdAnswer{}, err
+		allErrors = append(allErrors, err)
+		return TokenIdAnswer{}, allErrors
 	}
+	// кладем в срезы наши имена и номера сетей каждому api свое
 
-	_, apiKey := config.GetApiKey()
-	// кладем номер сети в структуру
-	result.Network = resSnapshot.Data.Space.Network
-	symbol := resSnapshot.Data.Space.Symbol
-	chain := GetChainName(result.Network)
-	url := fmt.Sprintf("https://deep-index.moralis.io/api/v2.2/erc20/metadata/symbols?chain=%s&symbols=%s", chain, symbol)
+	realSymbol := GetRealTokenSymbol(resSnapshot.Data.Space.Symbol) // получаем symbol пр-ва например у stgao.eth это STG
+	tokensData := make([]TokensInfo, 0)
 
-	req, _ := http.NewRequest("GET", url, nil)
+	for _, v := range resSnapshot.Data.Space.Strategies {
+		chainName := GetChainName(v.Network)
+		tokenFromSymbol, err := GetTokensFromSymbol(chainName, v.Network, realSymbol, apiKey)
+		if err != nil {
+			log.Println("Problem when GetTokensFromSymbol: ", err)
+			allErrors = append(allErrors, err)
+			continue
+		}
+		tokensData = append(tokensData, tokenFromSymbol...)
+	}
+	if len(allErrors) != 0 {
+		return TokenIdAnswer{
+			Symbol: realSymbol,
+			Tokens: tokensData,
+		}, allErrors
+	}
+	return TokenIdAnswer{
+		Symbol: realSymbol,
+		Tokens: tokensData,
+	}, nil
+}
+func GetTokensFromSymbol(chainName string, networkID string, symbol string, apiKey string) ([]TokensInfo, error) {
+	var resMoralis []MoralisResponce
+	url := fmt.Sprintf("https://deep-index.moralis.io/api/v2.2/erc20/metadata/symbols?chain=%s&symbols=%s", chainName, symbol)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Println("Problems with GetRequest: ", err)
+		return nil, err
+	}
 	req.Header.Add("X-API-Key", apiKey)
 
-	resp, _ = http.DefaultClient.Do(req)
-	bodys, _ := io.ReadAll(resp.Body)
-
-	if err := json.Unmarshal(bodys, &resMoralis); err != nil {
-		log.Println("Moralis unmarshall error: ", err)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println("Problems with HTTP client: ", err)
+		return nil, err
 	}
-	bufferToStruct := make([]string, 0, len(resMoralis))
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("Problems when read body: ", err)
+		return nil, err
+	}
+
+	if err := json.Unmarshal(body, &resMoralis); err != nil {
+		log.Println("Moralis unmarshall error: ", err)
+		return nil, err
+	}
+	result := make([]TokensInfo, 0, len(resMoralis))
 
 	for _, v := range resMoralis {
-		bufferToStruct = append(bufferToStruct, v.Address)
+		tmp := TokensInfo{
+			Chain:   chainName,
+			Address: v.Address,
+			Network: networkID,
+		}
+
+		result = append(result, tmp)
 	}
-	result.TokensAddress = bufferToStruct
 	return result, nil
 }
 func GetChainName(networkID string) string {
@@ -121,4 +175,14 @@ func GetChainName(networkID string) string {
 	default:
 		return "eth"
 	}
+}
+func GetRealTokenSymbol(s string) string {
+	// Регулярка для удаления префиксов ve, x, s, vl в начале строки
+	re := regexp.MustCompile(`(?i)^(ve|s|vl|x|st|a|y)([A-Z0-9]{2,})`)
+	matches := re.FindStringSubmatch(s)
+
+	if len(matches) > 2 {
+		return matches[2] // Возвращаем только основную часть, например STG
+	}
+	return s
 }

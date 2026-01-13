@@ -11,9 +11,9 @@ func FinalRes(tokenStruct scamanalyzator.TokenIdAnswer) bool {
 	isScamFound := false
 	ethKey, _ := config.GetApiKey()
 
-	for _, addr := range tokenStruct.TokensAddress {
+	for i, addr := range tokenStruct.TokensAddress {
 
-		res, err := GetTokenAge(ethKey, addr, tokenStruct.Network)
+		res, err := GetTokenAge(ethKey, addr, tokenStruct.Network[i])
 		if err != nil {
 			log.Println("EtherScan error for: ", addr, err)
 			continue
