@@ -8,12 +8,13 @@ import (
 	"net/http"
 	"scam-analyzator-service/internal/config"
 	"scam-analyzator-service/internal/scamanalyzator"
+	"scam-analyzator-service/internal/scamanalyzator/fetch"
 )
 
 func main() {
 
 	testspace := "stgdao.eth"
-	tokenData, err := scamanalyzator.GetTokenId(testspace)
+	tokenData, err := fetch.GetTokenId(testspace)
 	if err != nil {
 		log.Fatal(err)
 	}

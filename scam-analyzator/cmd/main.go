@@ -3,15 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
-	"scam-analyzator-service/internal/scamanalyzator"
 	ageanalyze "scam-analyzator-service/internal/scamanalyzator/age-analyze"
+	"scam-analyzator-service/internal/scamanalyzator/fetch"
 )
 
 func main() {
 	// TODO сделать конечную точку для GET spaceId
 	spaceID := "stgdao.eth"
 
-	tokenIds, err := scamanalyzator.GetTokenId(spaceID)
+	tokenIds, err := fetch.GetTokenId(spaceID)
 	if err != nil {
 		log.Println("Не найден токены для данного пр-ва")
 	}

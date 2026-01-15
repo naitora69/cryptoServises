@@ -1,4 +1,4 @@
-package scamanalyzator
+package fetch
 
 import (
 	"bytes"
@@ -36,7 +36,9 @@ type SnapshotResponce struct {
 	} `json:"data"`
 }
 type MoralisResponce struct {
-	Address string `json:"address"`
+	Address          string `json:"address"`
+	VerifiedContract bool   `json:"verified_contract"` // Проверен ли контракт в эксплорере
+	PossibleSpam     bool   `json:"possible_spam"`     // Внутренний фильтр Moralis
 }
 type TokensInfo struct {
 	Address string
@@ -146,13 +148,15 @@ func GetTokensFromSymbol(chainName string, networkID string, symbol string, apiK
 	result := make([]TokensInfo, 0, len(resMoralis))
 
 	for _, v := range resMoralis {
-		tmp := TokensInfo{
-			Chain:   chainName,
-			Address: v.Address,
-			Network: networkID,
-		}
 
-		result = append(result, tmp)
+		if v.VerifiedContract && !v.PossibleSpam {
+			tmp := TokensInfo{
+				Chain:   chainName,
+				Address: v.Address,
+				Network: networkID,
+			}
+			result = append(result, tmp)
+		}
 	}
 	return result, nil
 }
