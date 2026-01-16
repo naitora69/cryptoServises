@@ -11,7 +11,8 @@ import (
 )
 
 type TokenHoldersResponce struct {
-	TotalHolders int `json:"totalHolders"`
+	TotalHolders int    `json:"totalHolders"`
+	Message      string `json:"message"`
 }
 
 // TODO продумать над тем как возвращать флаг скама, касаемо ошибок впервую очередь
@@ -38,6 +39,9 @@ func GetTokenHoldersCountFlag(tokenData fetch.TokenIdAnswer) (bool, error) {
 		if err != nil {
 			log.Println("Unmarshall error: ", err)
 			return false, err
+		}
+		if tokenResponce.Message == "Chain is not supported" {
+			continue
 		}
 		if tokenResponce.TotalHolders < 50 {
 			log.Println(v.Address, " ", v.Chain, " < 50 holders")
