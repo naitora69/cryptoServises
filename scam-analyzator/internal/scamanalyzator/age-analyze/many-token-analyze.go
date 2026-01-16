@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func FinalRes(tokenStruct fetch.TokenIdAnswer) bool {
+func GetTokenAgeFlag(tokenStruct fetch.TokenIdAnswer) bool {
 	isScamFound := false
 
 	_, moralisKey := config.GetApiKey()
@@ -25,8 +25,9 @@ func FinalRes(tokenStruct fetch.TokenIdAnswer) bool {
 				addr.Address, addr.Chain, analysis.AgeHours)
 			isScamFound = true
 		} else {
-			log.Printf("Токен %s (%s) прошел проверку. Возраст: %.2f дней",
-				addr.Address, addr.Chain, analysis.AgeHours/24)
+			// Сообщения для отладки
+			//log.Printf("Токен %s (%s) прошел проверку. Возраст: %.2f дней",
+			//	addr.Address, addr.Chain, analysis.AgeHours/24)
 		}
 
 		time.Sleep(200 * time.Millisecond)

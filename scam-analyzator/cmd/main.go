@@ -3,21 +3,20 @@ package main
 import (
 	"fmt"
 	"log"
-	ageanalyze "scam-analyzator-service/internal/scamanalyzator/age-analyze"
-	"scam-analyzator-service/internal/scamanalyzator/fetch"
+	orchestrascama "scam-analyzator-service/internal/scamanalyzator/orchestra-scama"
 )
 
 func main() {
 	// TODO сделать конечную точку для GET spaceId
 	spaceID := "stgdao.eth"
 
-	tokenIds, err := fetch.GetTokenId(spaceID)
-	if err != nil {
-		log.Println("Не найден токены для данного пр-ва")
-	}
-	res := ageanalyze.FinalRes(tokenIds)
+	res, err := orchestrascama.FinalRes(spaceID)
 
-	resStr := fmt.Sprintf("Найден ли скам в пр-ве %s = %v\n", spaceID, res)
+	if err != nil {
+		log.Println(err)
+	}
+
+	resStr := fmt.Sprintf("Найден ли скам в пр-ве %s = ageFlag - %v, countHoldersFLag - %v\n", spaceID, res.TokenAgeScam, res.TokenHoldersCountScam)
 
 	// пока вывод просто в консоль
 	// TODO сделать конечную точку для вывода ответа
