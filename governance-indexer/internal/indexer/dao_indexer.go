@@ -2,11 +2,11 @@ package indexer
 
 import (
 	"bytes"
+	"controller/pkg/models"
+	"controller/pkg/service"
 	"encoding/json"
 	"fmt"
 	"governance-indexer/internal/repository"
-	"governance-indexer/pkg/models"
-	"governance-indexer/pkg/service"
 	"io"
 	"log"
 	"net/http"
@@ -417,7 +417,7 @@ func (d *DAOIndexer) ProposalsProcessing(proposals []models.Proposals) error {
 
 	eventData := models.NewData{
 		TableName: "proposals",
-		Ids:       ids,
+		IDs:       ids,
 	}
 
 	data, err := json.Marshal(eventData)
@@ -466,7 +466,7 @@ func (d *DAOIndexer) SpaceProcessing(spaces []models.Space) error {
 
 	eventData := models.NewData{
 		TableName: "spaces",
-		Ids:       ids,
+		IDs:       ids,
 	}
 
 	data, err := json.Marshal(eventData)

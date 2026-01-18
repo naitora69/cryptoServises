@@ -1,10 +1,10 @@
 package indexer
 
 import (
+	"controller/pkg/models"
+	"controller/pkg/service"
 	"governance-indexer/internal/config"
 	"governance-indexer/internal/repository"
-	"governance-indexer/pkg/models"
-	"governance-indexer/pkg/service"
 	"time"
 )
 

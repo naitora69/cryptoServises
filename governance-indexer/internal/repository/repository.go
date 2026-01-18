@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"controller/pkg/models"
 	"database/sql"
-	"governance-indexer/pkg/models"
 )
 
 type ProposalRepo interface {

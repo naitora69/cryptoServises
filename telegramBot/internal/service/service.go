@@ -1,10 +1,10 @@
 package service
 
 import (
+	"controller/pkg/models"
+	pkgService "controller/pkg/service"
 	"telegramBot/internal/config"
 	"telegramBot/internal/repository"
-	"telegramBot/pkg/models"
-	pkgService "telegramBot/pkg/service"
 )
 
 type Dao interface {

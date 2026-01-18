@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"controller/pkg/models"
 	"database/sql"
-	"telegramBot/pkg/models"
 )
 
 type UserRepo interface {
