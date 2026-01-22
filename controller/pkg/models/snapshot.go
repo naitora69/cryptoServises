@@ -14,6 +14,33 @@ type Proposals struct {
 }
 
 type Space struct {
-	ID   string `json:"id"`
+	ID         string       `json:"id" db:"space_id"`
+	Name       string       `json:"name"`
+	About      string       `json:"about"`
+	Network    string       `json:"network"`
+	Symbol     string       `json:"symbol"`
+	Created    int64        `json:"created"`
+	Strategies []Strategies `json:"strategies" `
+	Admins     []string     `json:"admins"`
+	Members    []string     `json:"members"`
+	Filters    Filters      `json:"filters"`
+}
+
+type Strategies struct {
 	Name string `json:"name"`
+	//Params []struct{} `json:"params"`
+}
+
+type Filters struct {
+	MinScore    int  `json:"min_score"`
+	OnlyMembers bool `json:"only_members"`
+}
+
+type Votes struct {
+	ID      string  `json:"id"`
+	Voter   string  `json:"voter"`
+	Vp      float32 `json:"vp"`
+	VpState string  `json:"vp_state"`
+	Created int64   `json:"created"`
+	Choice  int64   `json:"choice"`
 }

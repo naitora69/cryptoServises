@@ -38,7 +38,11 @@ func main() {
 	repo := repository.NewRepository(db)
 	index := indexer.NewIndexer(repo, cfg)
 	tm := timer.NewTimer(index, cfg)
-	go tm.StartProposal()
+
+	// TODO: вместо это ерунды должен быть один поток очереди с ограничением количества запросов 60 в секунду
+	//go tm.StartProposal()
+	//go tm.StartSpace(false)
+	go tm.StartVotes()
 
 	// Создаем http сервер
 	log.Println(fmt.Sprintf("Server started on: %s", cfg.Server.Port))

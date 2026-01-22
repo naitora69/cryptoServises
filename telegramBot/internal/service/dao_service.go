@@ -1,14 +1,14 @@
 package service
 
 import (
+	"controller/pkg/models"
+	pkgService "controller/pkg/service"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	cusmomError "telegramBot/internal/error"
 	"telegramBot/internal/repository"
-	"telegramBot/pkg/models"
-	pkgService "telegramBot/pkg/service"
 )
 
 type DaoService struct {

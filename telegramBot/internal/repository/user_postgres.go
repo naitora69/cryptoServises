@@ -1,11 +1,11 @@
 package repository
 
 import (
+	"controller/pkg/models"
 	"database/sql"
 	"errors"
 	"fmt"
 	error2 "telegramBot/internal/error"
-	"telegramBot/pkg/models"
 )
 
 type UserPostgres struct {

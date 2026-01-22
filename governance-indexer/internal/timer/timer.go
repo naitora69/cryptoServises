@@ -7,6 +7,8 @@ import (
 
 type ProposalTimerInterface interface {
 	StartProposal()
+	StartSpace(saveAllSpaces bool)
+	StartVotes()
 }
 
 type Timer struct {

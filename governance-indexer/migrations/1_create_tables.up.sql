@@ -39,3 +39,28 @@ CREATE TABLE IF NOT EXISTS users
     username text,
     dao_subscribed integer
 );
+
+CREATE TABLE IF NOT EXISTS spaces
+(
+    id serial primary key,
+    space_id varchar(256) unique not null ,
+    name text,
+    about text,
+    network text,
+    symbol text,
+    created integer,
+    strategies_name text,
+    admins json,
+    members json,
+    filters_min_score integer,
+    filters_only_members bool
+);
+
+CREATE TABLE IF NOT EXISTS event_outbox
+(
+    id serial primary key,
+    hex_id varchar(256) unique not null references proposals(hex_id) on delete cascade,
+    event_type text,
+    created_at timestamp,
+    processed_at timestamp NULL
+);

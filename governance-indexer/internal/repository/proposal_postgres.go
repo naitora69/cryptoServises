@@ -1,10 +1,10 @@
 package repository
 
 import (
+	"controller/pkg/models"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"governance-indexer/pkg/models"
 	"log"
 	"time"
 
