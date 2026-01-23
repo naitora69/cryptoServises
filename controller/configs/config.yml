@@ -2,8 +2,8 @@ server:
   port: 8083
 
 database:
-  host: localhost
-  port: 5432
+  host: db-postgres
+  port: 5434
   dbname: governance
   sslmode: disable
 
@@ -12,5 +12,5 @@ proposal:
   time_request: 5
 
 kafka:
-  address: localhost
-  port: 9092
+  address: kafka
+  port: 29092
