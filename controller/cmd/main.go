@@ -1,15 +1,16 @@
 package main
 
 import (
-	"controller/internal/config"
-	"controller/internal/controller"
-	"controller/internal/repository"
-	"controller/internal/service"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/danila-kuryakin/cryptoServises/controller/internal/config"
+	"github.com/danila-kuryakin/cryptoServises/controller/internal/controller"
+	"github.com/danila-kuryakin/cryptoServises/controller/internal/repository"
+	"github.com/danila-kuryakin/cryptoServises/controller/internal/service"
 
 	_ "github.com/lib/pq"
 )

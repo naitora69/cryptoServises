@@ -1,8 +1,8 @@
 package timer
 
 import (
-	"governance-indexer/internal/config"
-	"governance-indexer/internal/indexer"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/config"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/indexer"
 )
 
 type ProposalTimerInterface interface {

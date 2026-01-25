@@ -2,9 +2,10 @@ package ageanalyze
 
 import (
 	"log"
-	"scam-analyzator-service/internal/config"
-	"scam-analyzator-service/internal/scamanalyzator/fetch"
 	"time"
+
+	"github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/config"
+	"github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/scamanalyzator/fetch"
 )
 
 func GetTokenAgeFlag(tokenStruct fetch.TokenIdAnswer) bool {

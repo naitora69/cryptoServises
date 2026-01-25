@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	orchestrascama "scam-analyzator-service/internal/scamanalyzator/orchestra-scama"
+
+	orchestrascama "github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/scamanalyzator/orchestra-scama"
 )
 
 func main() {

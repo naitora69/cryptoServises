@@ -2,9 +2,10 @@ package orchestrascama
 
 import (
 	"log"
-	ageanalyze "scam-analyzator-service/internal/scamanalyzator/age-analyze"
-	countholders "scam-analyzator-service/internal/scamanalyzator/count-holders"
-	"scam-analyzator-service/internal/scamanalyzator/fetch"
+
+	ageanalyze "github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/scamanalyzator/age-analyze"
+	countholders "github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/scamanalyzator/count-holders"
+	"github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/scamanalyzator/fetch"
 )
 
 type ScamsFlags struct {

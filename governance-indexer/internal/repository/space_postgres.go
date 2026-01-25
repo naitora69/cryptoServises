@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"controller/pkg/models"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
+
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/models"
 
 	"github.com/lib/pq"
 )

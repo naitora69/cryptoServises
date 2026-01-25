@@ -6,8 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"scam-analyzator-service/internal/config"
-	"scam-analyzator-service/internal/scamanalyzator/fetch"
+
+	"github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/config"
+	"github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/scamanalyzator/fetch"
 )
 
 type TokenHoldersResponce struct {

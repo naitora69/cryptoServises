@@ -1,10 +1,11 @@
 package timer
 
 import (
-	"governance-indexer/internal/config"
-	"governance-indexer/internal/indexer"
 	"log"
 	"time"
+
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/config"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/indexer"
 )
 
 type ProposalTimer struct {

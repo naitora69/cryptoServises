@@ -2,15 +2,16 @@ package indexer
 
 import (
 	"bytes"
-	"controller/pkg/models"
-	"controller/pkg/service"
 	"encoding/json"
 	"fmt"
-	"governance-indexer/internal/repository"
 	"io"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/models"
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/service"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/repository"
 
 	"github.com/segmentio/kafka-go"
 )

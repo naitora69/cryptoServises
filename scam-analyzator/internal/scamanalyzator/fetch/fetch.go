@@ -8,7 +8,8 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"scam-analyzator-service/internal/config"
+
+	"github.com/danila-kuryakin/cryptoServises/scam-analyzator/internal/config"
 )
 
 var queryToken = `

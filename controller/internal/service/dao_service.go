@@ -1,15 +1,16 @@
 package service
 
 import (
-	customError "controller/errors"
-	"controller/internal/repository"
-	"controller/pkg/models"
-	"controller/pkg/service"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"time"
+
+	customError "github.com/danila-kuryakin/cryptoServises/controller/errors"
+	"github.com/danila-kuryakin/cryptoServises/controller/internal/repository"
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/models"
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/service"
 
 	"github.com/segmentio/kafka-go"
 )

@@ -1,12 +1,13 @@
 package repository
 
 import (
-	customError "controller/errors"
-	"controller/pkg/models"
 	"database/sql"
 	"errors"
 	"fmt"
 	"log"
+
+	customError "github.com/danila-kuryakin/cryptoServises/controller/errors"
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/models"
 )
 
 type ProposalPostgres struct {
