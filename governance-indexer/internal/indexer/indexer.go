@@ -1,11 +1,12 @@
 package indexer
 
 import (
-	"controller/pkg/models"
-	"controller/pkg/service"
-	"governance-indexer/internal/config"
-	"governance-indexer/internal/repository"
 	"time"
+
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/models"
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/service"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/config"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/repository"
 )
 
 type DAOIndexerInterface interface {

@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"governance-indexer/internal/indexer"
-	"governance-indexer/internal/repository"
-	"governance-indexer/internal/timer"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 
-	"governance-indexer/internal/config"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/indexer"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/repository"
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/timer"
+
+	"github.com/danila-kuryakin/cryptoServises/governance-indexer/internal/config"
 
 	_ "github.com/lib/pq"
 )

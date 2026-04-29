@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"controller/pkg/models"
 	"database/sql"
+
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/models"
 )
 
 // ProposalRepo - работает с Proposals и смежными таблицами

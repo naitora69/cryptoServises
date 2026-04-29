@@ -1,0 +1,18 @@
+FROM golang:alpine3.23 AS builder
+
+WORKDIR /home/src/app/scam-analyzator
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+COPY . . 
+
+RUN go build -o /bin/scam-analyzator cmd/main.go
+
+FROM alpine:3.23 AS runner
+
+
+COPY --from=builder /bin/scam-analyzator /bin/scam-analyzator
+
+CMD ["/bin/scam-analyzator"]

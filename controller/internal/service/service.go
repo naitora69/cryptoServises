@@ -1,9 +1,9 @@
 package service
 
 import (
-	"controller/internal/config"
-	"controller/internal/repository"
-	"controller/pkg/service"
+	"github.com/danila-kuryakin/cryptoServises/controller/internal/config"
+	"github.com/danila-kuryakin/cryptoServises/controller/internal/repository"
+	"github.com/danila-kuryakin/cryptoServises/controller/pkg/service"
 
 	"github.com/segmentio/kafka-go"
 )

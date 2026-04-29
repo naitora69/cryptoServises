@@ -1,9 +1,10 @@
 package controller
 
 import (
-	"controller/internal/service"
 	"log"
 	"time"
+
+	"github.com/danila-kuryakin/cryptoServises/controller/internal/service"
 )
 
 type Controller struct {

@@ -1,0 +1,84 @@
+services:
+  indexer:
+    build:
+      context: .
+      dockerfile: governance-indexer/dockerfile
+    container_name: indexer
+    restart: always
+    depends_on:
+      - db-postgres
+      - kafka
+    ports:
+      - "8081:8081"
+
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: telegramBot/dockerfile
+    container_name: telegram-bot
+    restart: always
+    depends_on:
+      - db-postgres
+      - kafka
+    ports:
+      - "8082:8082"
+
+  scam-analyzator:
+    build:
+      context: ./scam-analyzator
+      dockerfile: dockerfile
+    container_name: scam-analyzator
+    restart: always
+    env_file:
+      - ./scam-analyzator/.env
+
+  db-postgres:
+    image: postgres:14.20-trixie
+    container_name: db-postgres
+    environment:
+      POSTGRES_USER: doitora
+      POSTGRES_PASSWORD: pas123
+      POSTGRES_DB: governance
+      PGPORT: 5434
+    restart: always
+    ports:
+      - "5434:5434"
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092" # Порт для доступа с твоего компа
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      
+      # СЛУШАТЕЛИ: 
+      # INTERNAL (порт 29092) - для контейнеров (indexer)
+      # EXTERNAL (порт 9092) - для хоста (твой комп)
+      # CONTROLLER (порт 9093) - служебный
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      
+      # РЕКЛАМИРУЕМЫЕ АДРЕСА (То, что кафка отвечает клиенту):
+      # Внутри докера она скажет: "Я kafka:29092"
+      # Снаружи она скажет: "Я localhost:9092"
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CLUSTER_ID: "Mk3OEYBSD34fcwNTJENDM2Qk"
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka:29092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+networks:
+  default:
+    driver: bridge
